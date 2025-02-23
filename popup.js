@@ -1,47 +1,41 @@
-const templates = [
-    { id: 'a', label: '1' },
-    { id: 'b', label: '2' },
-    { id: 'c', label: '3' },
-    { id: 'd', label: '4' },
-    { id: 'e', label: '5' },
-    { id: 'f', label: '6' }
-];
+const MAX_SHORTCUTS = 6;
 
-// テンプレートを表示
-function loadTemplates() {
-    chrome.storage.local.get("templates", (data) => {
-        const savedTemplates = data.templates || {};
-        const container = document.getElementById("template-list");
+// ショートカットを表示
+function loadShortcuts() {
+    chrome.storage.local.get("shortcuts", (data) => {
+        const savedShortcuts = data.shortcuts || {};
+        const container = document.getElementById("shortcut-list");
         container.innerHTML = "";
 
-        templates.forEach(({ id, label }) => {
+        for (let i = 1; i <= MAX_SHORTCUTS; i++) {
             const div = document.createElement("div");
-            div.className = "template-container";
+            div.className = "shortcut-container";
 
             const numberLabel = document.createElement("span");
-            numberLabel.className = "template-number";
-            numberLabel.textContent = label;
+            numberLabel.className = "shortcut-number";
+            numberLabel.textContent = i;
 
             const textarea = document.createElement("textarea");
-            textarea.id = `template-${id}`;
-            textarea.value = savedTemplates[id] || "";
+            textarea.id = `shortcut-${i}`;
+            textarea.value = savedShortcuts[i] || "";
 
             div.appendChild(numberLabel);
             div.appendChild(textarea);
             container.appendChild(div);
-        });
+        }
     });
 }
 
 // 保存
 document.getElementById("save").addEventListener("click", () => {
-    const newTemplates = {};
-    templates.forEach(({ id }) => {
-        newTemplates[id] = document.getElementById(`template-${id}`).value;
-    });
+    const newShortcuts = {};
+    for (let i = 1; i <= MAX_SHORTCUTS; i++) {
+        const value = document.getElementById(`shortcut-${i}`).value;
+        if (value) newShortcuts[i] = value;
+    }
 
-    chrome.storage.local.set({ templates: newTemplates }, () => {
-        console.log("Templates saved");
+    chrome.storage.local.set({ shortcuts: newShortcuts }, () => {
+        console.log("Shortcuts saved:", newShortcuts);
         window.close();
     });
 });
@@ -51,5 +45,4 @@ document.getElementById("cancel").addEventListener("click", () => {
     window.close();
 });
 
-document.addEventListener("DOMContentLoaded", loadTemplates);
-
+document.addEventListener("DOMContentLoaded", loadShortcuts);
