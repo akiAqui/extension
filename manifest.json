@@ -1,18 +1,22 @@
 {
   "manifest_version": 3,
   "name": "My Focus Controller",
-  "version": "1.1",
+  "version": "1.2",
   "description": "Keyboard shortcut to focus specific input",
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
   "host_permissions": [
-    "https://claude.ai/*"
+    "https://*.chatgpt.com/*",
+    "https://*.claude.ai/*"
   ],
-  "action": {},
+  "action": {
+    "default_popup": "popup.html"
+  },
   "content_scripts": [
     {
-      "matches": ["https://claude.ai/*"],
+      "matches": ["https://*.chatgpt.com/*", "https://*.claude.ai/*"],
       "js": ["content.js"]
     }
   ]

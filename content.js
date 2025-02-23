@@ -1,3 +1,219 @@
+console.log('Content script loaded!');
+
+let templates = {};
+
+// テンプレートをローカルストレージから取得
+chrome.storage.local.get("templates", (data) => {
+    templates = data.templates || {};
+});
+
+// URL に応じたエディター要素を取得
+function getEditor() {
+    if (window.location.hostname.includes("chatgpt.com")) {
+        return document.querySelector('[data-testid="conversation-turn-0"] textarea');
+    } else if (window.location.hostname.includes("claude.ai")) {
+        return document.querySelector('div.ProseMirror[contenteditable="true"]');
+    }
+    return null;
+}
+
+function insertTemplate(templateKey) {
+    const editor = getEditor();
+    if (!editor) return;
+
+    const text = templates[templateKey] || "";
+    if (!text) return;
+
+    editor.value = text;
+    editor.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+// Alt + number
+document.addEventListener('keydown', function(e) {
+    if (e.altKey && ['1', '2', '3', '4', '5', '6'].includes(e.key)) {
+        e.preventDefault();
+        const templateKey = {
+            '1': 'a',
+            '2': 'b',
+            '3': 'c',
+            '4': 'd',
+            '5': 'e',
+            '6': 'f'
+        }[e.key];
+        
+        insertTemplate(templateKey);
+        return;
+    }
+
+    // Ctrl + Q for focus (サイトごとに変更)
+    if (e.ctrlKey && e.key === 'q') {
+        e.preventDefault();
+        const editor = getEditor();
+        if (editor) {
+            editor.focus();
+            console.log('Focus attempted');
+        }
+    }
+});
+
+// Ctrl + ; followed by number
+let waitingForSecondKey = false;
+let secondKeyTimer = null;
+
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === ';') {
+        e.preventDefault();
+        waitingForSecondKey = true;
+        
+        clearTimeout(secondKeyTimer);
+        secondKeyTimer = setTimeout(() => {
+            waitingForSecondKey = false;
+        }, 2000);
+        return;
+    }
+
+    if (waitingForSecondKey && ['1', '2', '3', '4', '5', '6'].includes(e.key)) {
+        e.preventDefault();
+        waitingForSecondKey = false;
+        clearTimeout(secondKeyTimer);
+        
+        const templateKey = {
+            '1': 'a',
+            '2': 'b',
+            '3': 'c',
+            '4': 'd',
+            '5': 'e',
+            '6': 'f'
+        }[e.key];
+        
+        insertTemplate(templateKey);
+    }
+});
+
+// Reset waiting state when focus is lost
+document.addEventListener('blur', () => {
+    waitingForSecondKey = false;
+    clearTimeout(secondKeyTimer);
+}, true);
+
+// ストレージの変更を監視
+chrome.storage.onChanged.addListener((changes) => {
+    if (changes.templates) {
+        templates = changes.templates.newValue || {};
+    }
+});
+
+
+
+
+
+
+/*console.log('Content script loaded!');
+
+let templates = {};
+
+// テンプレートをローカルストレージから取得
+chrome.storage.local.get("templates", (data) => {
+    templates = data.templates || {};
+});
+
+// URL に応じたエディター要素を取得
+function getEditor() {
+    if (window.location.hostname.includes("chat.openai.com")) {
+        return document.querySelector('[data-testid="conversation-turn-0"] textarea');
+    } else if (window.location.hostname.includes("claude.ai")) {
+        return document.querySelector('div.ProseMirror[contenteditable="true"]');
+    }
+    return null;
+}
+
+function insertTemplate(templateKey) {
+    const editor = getEditor();
+    if (!editor) return;
+
+    const text = templates[templateKey] || "";
+    if (!text) return;
+
+    editor.value = text;
+    editor.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+// Alt + number
+document.addEventListener('keydown', function(e) {
+    if (e.altKey && ['1', '2', '3', '4', '5', '6'].includes(e.key)) {
+        e.preventDefault();
+        const templateKey = {
+            '1': 'a',
+            '2': 'b',
+            '3': 'c',
+            '4': 'd',
+            '5': 'e',
+            '6': 'f'
+        }[e.key];
+        
+        insertTemplate(templateKey);
+        return;
+    }
+
+    // Ctrl + Q for focus (サイトごとに変更)
+    if (e.ctrlKey && e.key === 'q') {
+        e.preventDefault();
+        const editor = getEditor();
+        if (editor) {
+            editor.focus();
+            console.log('Focus attempted');
+        }
+    }
+});
+
+// Ctrl + ; followed by number
+let waitingForSecondKey = false;
+let secondKeyTimer = null;
+
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === ';') {
+        e.preventDefault();
+        waitingForSecondKey = true;
+        
+        clearTimeout(secondKeyTimer);
+        secondKeyTimer = setTimeout(() => {
+            waitingForSecondKey = false;
+        }, 2000);
+        return;
+    }
+
+    if (waitingForSecondKey && ['1', '2', '3', '4', '5', '6'].includes(e.key)) {
+        e.preventDefault();
+        waitingForSecondKey = false;
+        clearTimeout(secondKeyTimer);
+        
+        const templateKey = {
+            '1': 'a',
+            '2': 'b',
+            '3': 'c',
+            '4': 'd',
+            '5': 'e',
+            '6': 'f'
+        }[e.key];
+        
+        insertTemplate(templateKey);
+    }
+});
+
+// Reset waiting state when focus is lost
+document.addEventListener('blur', () => {
+    waitingForSecondKey = false;
+    clearTimeout(secondKeyTimer);
+}, true);
+
+// ストレージの変更を監視
+chrome.storage.onChanged.addListener((changes) => {
+    if (changes.templates) {
+        templates = changes.templates.newValue || {};
+    }
+});
+
+
 // content.js
 console.log('Content script loaded!');
 
@@ -97,3 +313,4 @@ document.addEventListener('blur', () => {
     waitingForSecondKey = false;
     clearTimeout(secondKeyTimer);
 }, true);
+*/
