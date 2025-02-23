@@ -1,14 +1,7 @@
-console.log('Content script loaded!');
+//console.log('Content script loaded!');
 
-let shortcuts = {};
 let waitingForSecondKey = false;
 let secondKeyTimer = null;
-
-// Load shortcuts from storage
-chrome.storage.local.get("shortcuts", (data) => {
-    shortcuts = data.shortcuts || {};
-    console.log('Loaded shortcuts:', shortcuts);
-});
 
 // Get editor element
 function getEditor() {
@@ -16,32 +9,45 @@ function getEditor() {
 }
 
 // Insert shortcut text
-function insertShortcut(shortcutNumber) {
-    const editor = getEditor();
-    const text = shortcuts[shortcutNumber];
-    
-    if (!editor || !text) {
-        console.log('Editor or shortcut not found for number:', shortcutNumber);
-        return;
+async function insertShortcut(shortcutNumber) {
+    try {
+        const editor = getEditor();
+        if (!editor) {
+            console.log('Editor not found');
+            return;
+        }
+
+        const result = await chrome.storage.local.get("shortcuts");
+        const shortcuts = result.shortcuts || {};
+        const text = shortcuts[shortcutNumber];
+
+        if (!text) {
+            console.log('Shortcut not found for number:', shortcutNumber);
+            return;
+        }
+
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        
+        const range = selection.getRangeAt(0);
+        if (!editor.contains(range.commonAncestorContainer)) return;
+
+        range.deleteContents();
+        range.insertNode(document.createTextNode(text));
+        //range.insertNode(document.createTextNode(text.replace(/\\n/g, '\n')));
+        //console.log('Inserted shortcut:', shortcutNumber);
+    } catch (error) {
+        console.error('Error inserting shortcut:', error);
     }
-
-    const selection = window.getSelection();
-    if (!selection.rangeCount) return;
-    
-    const range = selection.getRangeAt(0);
-    if (!editor.contains(range.commonAncestorContainer)) return;
-
-    range.deleteContents();
-    range.insertNode(document.createTextNode(text));
-    console.log('Inserted shortcut:', shortcutNumber);
 }
 
 // Use event delegation for dynamic content
-document.addEventListener('keydown', function(e) {
-    console.log('Keydown detected:', e.key, {
-        ctrlKey: e.ctrlKey,
-        altKey: e.altKey
-    });
+window.addEventListener('keydown', function(e) {
+
+    // console.log('Keydown detected:', e.key, {
+    //    ctrlKey: e.ctrlKey,
+    //    altKey: e.altKey
+   //  });
 
     const validNumbers = ['1', '2', '3', '4', '5', '6'];
 
@@ -58,7 +64,7 @@ document.addEventListener('keydown', function(e) {
         const editor = getEditor();
         if (editor) {
             editor.focus();
-            console.log('Editor focused');
+            // console.log('Editor focused');
         }
         return;
     }
@@ -71,7 +77,7 @@ document.addEventListener('keydown', function(e) {
         clearTimeout(secondKeyTimer);
         secondKeyTimer = setTimeout(() => {
             waitingForSecondKey = false;
-            console.log('Second key timeout');
+            // console.log('Second key timeout');
         }, 2000);
         return;
     }
@@ -83,11 +89,3 @@ document.addEventListener('keydown', function(e) {
         insertShortcut(e.key);
     }
 }, true);
-
-// Storage change listener
-chrome.storage.onChanged.addListener((changes) => {
-    if (changes.shortcuts) {
-        shortcuts = changes.shortcuts.newValue || {};
-        console.log('Shortcuts updated:', shortcuts);
-    }
-});
