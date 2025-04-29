@@ -190,6 +190,7 @@ function cancelKeyCapture(number) {
 function loadShortcuts() {
     chrome.storage.local.get("shortcuts", (data) => {
         originalShortcuts = data.shortcuts || {};
+
         const container = document.getElementById("shortcut-list");
         container.innerHTML = "";
 
@@ -202,8 +203,13 @@ function loadShortcuts() {
 
             const textarea = document.createElement("textarea");
             textarea.id = `shortcut-${i}`;
+            
             textarea.value = originalShortcuts[i] ? originalShortcuts[i].replace(/\\n/g, '\n') : "";
             textarea.addEventListener('input', handleTextAreaChange);
+            /*
+            textarea.value = originalShortcuts[i] ? originalShortcuts[i].join("\n") : "";
+            */
+
 
             div.appendChild(textarea);
             container.appendChild(div);
@@ -215,8 +221,15 @@ function loadShortcuts() {
 document.getElementById("save").addEventListener("click", () => {
     const newShortcuts = {};
     for (let i = 1; i <= MAX_SHORTCUTS; i++) {
+        
         const value = document.getElementById(`shortcut-${i}`).value;
         if (value) newShortcuts[i] = value;
+        /*
+        const value = document.getElementById(`shortcut-${i}`).value; //元の生成コードはこれが付いてた.trim();
+        if (value) newShortcuts[i] = value.split("\n"); // 配列に変換して保存
+        */
+        
+
     }
 
     chrome.storage.local.set({ shortcuts: newShortcuts }, () => {

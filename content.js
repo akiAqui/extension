@@ -8,6 +8,21 @@ function getEditor() {
     return document.querySelector('div.ProseMirror[contenteditable="true"]');
 }
 
+function simulateShiftReturn() {
+    const event = new KeyboardEvent("keydown", {
+        key: "Enter",
+        code: "Enter",
+        keyCode: 13,
+        which: 13,
+        shiftKey: true,
+        bubbles: true,
+        cancelable: true
+    });
+    document.activeElement.dispatchEvent(event);
+}
+
+
+
 // Insert shortcut text
 async function insertShortcut(shortcutNumber) {
     try {
@@ -20,12 +35,10 @@ async function insertShortcut(shortcutNumber) {
         const result = await chrome.storage.local.get("shortcuts");
         const shortcuts = result.shortcuts || {};
         const text = shortcuts[shortcutNumber];
-
         if (!text) {
             console.log('Shortcut not found for number:', shortcutNumber);
             return;
         }
-
         const selection = window.getSelection();
         if (!selection.rangeCount) return;
         
@@ -34,8 +47,15 @@ async function insertShortcut(shortcutNumber) {
 
         range.deleteContents();
         range.insertNode(document.createTextNode(text));
-        //range.insertNode(document.createTextNode(text.replace(/\\n/g, '\n')));
-        //console.log('Inserted shortcut:', shortcutNumber);
+        //range.setStartAfter(textNode);
+        //range.setEndAfter(textNode);
+/*
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+*/            
+        //});
+        console.log('Inserted shortcut:', shortcutNumber);
     } catch (error) {
         console.error('Error inserting shortcut:', error);
     }
@@ -43,12 +63,12 @@ async function insertShortcut(shortcutNumber) {
 
 // Use event delegation for dynamic content
 window.addEventListener('keydown', function(e) {
-
-    // console.log('Keydown detected:', e.key, {
-    //    ctrlKey: e.ctrlKey,
-    //    altKey: e.altKey
-   //  });
-
+    /*
+    console.log('Keydown detected:', e.key, {
+        ctrlKey: e.ctrlKey,
+        altKey: e.altKey
+    });
+    */
     const validNumbers = ['1', '2', '3', '4', '5', '6'];
 
     // Alt + number

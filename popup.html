@@ -8,8 +8,10 @@
         body { 
             font-family: Arial, sans-serif; 
             padding: 10px; 
-            width: 600px;
+            width: 370px;
             height: 100%;
+            margin-left:0;
+            font-size:10px;
         }
         .shortcut-container { 
             margin-bottom: 10px;
@@ -21,6 +23,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            align-items:center;
         }
         .shortcut-number { 
             font-weight: bold; 
@@ -32,7 +35,6 @@
             font-family: monospace;
         }
         .key-change-button {
-            padding: 5px 10px;
             cursor: pointer;
         }
         .key-input-mode {
@@ -53,12 +55,14 @@
         }
         textarea { 
             width: 100%; 
-            min-height: 100px;
+            min-height: 120px;
             overflow: hidden;
-            resize: none; 
+            resize: none;
+            font-size:11px;
         }
         button { 
-            margin-right: 5px; 
+            margin-right: 5px;
+            text-size:8px;
         }
         .unsaved-changes {
             font-style: italic;
@@ -66,31 +70,49 @@
             font-size: 0.9em;
             margin-top: 5px;
         }
+        #container {
+            display: flex;
+            align-items: center;  /* 高さを揃える */
+            gap: 3px;  /* 要素間の間隔 */
+            margin-bottom: 20px;
+        }
+        h4 {
+            margin:0;
+        }
+        .save .cancel {
+            margin: 0px;
+            height: auto;  /* ボタンの高さをデフォルトに戻す */
+            padding: 5px 10px; /* 適切なサイズ調整 */
+            font-size: 14px; /* 必要に応じてフォントサイズ調整 */
+        }
         .status-indicator {
             display: none;
             padding: 5px;
-            margin-top: 10px;
             text-align: center;
             border-radius: 4px;
         }
         .status-indicator.unsaved {
-            display: block;
+            display: flex;
+            width: 27%;
             background-color: #fff3cd;
             color: #856404;
         }
         .status-indicator.saved {
-            display: block;
+            display: flex;
+            width: 27%;            
             background-color: #d4edda;
             color: #155724;
         }
     </style>
 </head>
 <body>
-    <h3>ショートカット</h3>
-    <div id="shortcut-list"></div>
-    <div id="status-indicator" class="status-indicator"></div>
+  <div id="container">
+    <h4>ショートカット</h4>
     <button id="save">Save</button>
     <button id="cancel">Cancel</button>
-    <script src="popup.js"></script>
+    <div id="status-indicator" class="status-indicator"></div>
+  </div>
+  <div id="shortcut-list"></div>
+  <script src="popup.js"></script>
 </body>
 </html>
