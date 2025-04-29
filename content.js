@@ -1,13 +1,10 @@
 //console.log('Content script loaded!');
-
 let waitingForSecondKey = false;
 let secondKeyTimer = null;
-
 // Get editor element
 function getEditor() {
     return document.querySelector('div.ProseMirror[contenteditable="true"]');
 }
-
 function simulateShiftReturn() {
     const event = new KeyboardEvent("keydown", {
         key: "Enter",
@@ -20,9 +17,6 @@ function simulateShiftReturn() {
     });
     document.activeElement.dispatchEvent(event);
 }
-
-
-
 // Insert shortcut text
 async function insertShortcut(shortcutNumber) {
     try {
@@ -31,7 +25,6 @@ async function insertShortcut(shortcutNumber) {
             console.log('Editor not found');
             return;
         }
-
         const result = await chrome.storage.local.get("shortcuts");
         const shortcuts = result.shortcuts || {};
         const text = shortcuts[shortcutNumber];
@@ -44,7 +37,6 @@ async function insertShortcut(shortcutNumber) {
         
         const range = selection.getRangeAt(0);
         if (!editor.contains(range.commonAncestorContainer)) return;
-
         range.deleteContents();
         range.insertNode(document.createTextNode(text));
         //range.setStartAfter(textNode);
@@ -60,7 +52,6 @@ async function insertShortcut(shortcutNumber) {
         console.error('Error inserting shortcut:', error);
     }
 }
-
 // Use event delegation for dynamic content
 window.addEventListener('keydown', function(e) {
     /*
@@ -70,14 +61,12 @@ window.addEventListener('keydown', function(e) {
     });
     */
     const validNumbers = ['1', '2', '3', '4', '5', '6'];
-
     // Alt + number
     if (e.altKey && validNumbers.includes(e.key)) {
         e.preventDefault();
         insertShortcut(e.key);
         return;
     }
-
     // Ctrl + Q for focus
     if (e.ctrlKey && e.key === 'q') {
         e.preventDefault();
@@ -88,7 +77,6 @@ window.addEventListener('keydown', function(e) {
         }
         return;
     }
-
     // Ctrl + ; followed by number
     if (e.ctrlKey && e.key === ';') {
         e.preventDefault();
@@ -101,7 +89,6 @@ window.addEventListener('keydown', function(e) {
         }, 2000);
         return;
     }
-
     if (waitingForSecondKey && validNumbers.includes(e.key)) {
         e.preventDefault();
         waitingForSecondKey = false;
